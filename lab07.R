@@ -4,6 +4,8 @@
 # load libraries
 library(tidyverse)
 library(e1071)
+library(cumstats)
+library(patchwork)
 ############################
 # task one: describe population distribution
 
@@ -50,7 +52,7 @@ beta2_5 <- tibble(x = seq(0, 1, length.out=1000))|>   # generate a grid of point
 
 figure1 <- ggplot(data= beta2_5) +                                              # specify data
   geom_line(aes(x=x, y=beta.pdf, color="Beta (2, 5)")) +                 # plot beta dist
-  geom_line(aes(x=x, y=norm.pdf, color= "Normal (0.285, 0.0255)")) +  # plot guassian dist
+  geom_line(aes(x=x, y=norm.pdf, color= "Normal (0.285, 0.0255)")) +  # plot gaussian dist
 geom_hline(yintercept = 0)+                                            # plot x axis
   theme_bw()+                                                          # change theme
   xlab("x")+                                                           # label x axis
@@ -68,9 +70,9 @@ beta5_5 <- tibble(x = seq(0, 1, length.out=1000))|>   # generate a grid of point
                           mean = alpha/(alpha+beta),            # same mean and variance
                           sd = sqrt((alpha*beta)/((alpha+beta)^2*(alpha+beta+1)))))
 
-figure2 <- ggplot(data= beta5_5) +                                              # specify data
+figure2 <- ggplot(data = beta5_5) +                                              # specify data
   geom_line(aes(x=x, y=beta.pdf, color="Beta (5, 5)")) +                 # plot beta dist
-  geom_line(aes(x=x, y=norm.pdf, color= "Normal (0.5, 0.022)")) +  # plot guassian dist
+  geom_line(aes(x=x, y=norm.pdf, color= "Normal (0.5, 0.022)")) +  # plot gaussian dist
   geom_hline(yintercept = 0)+                                            # plot x axis
   theme_bw()+                                                          # change theme
   xlab("x")+                                                           # label x axis
@@ -90,7 +92,7 @@ beta5_2 <- tibble(x = seq(0, 1, length.out=1000))|>   # generate a grid of point
 
 figure3 <- ggplot(data= beta5_2) +                                              # specify data
   geom_line(aes(x=x, y=beta.pdf, color="Beta (5, 2)")) +                 # plot beta dist
-  geom_line(aes(x=x, y=norm.pdf, color= "Normal (0.714, 0.0255)")) +  # plot guassian dist
+  geom_line(aes(x=x, y=norm.pdf, color= "Normal (0.714, 0.0255)")) +  # plot gaussian dist
   geom_hline(yintercept = 0)+                                            # plot x axis
   theme_bw()+                                                          # change theme
   xlab("x")+                                                           # label x axis
@@ -110,7 +112,7 @@ beta0.5_0.5 <- tibble(x = seq(0, 1, length.out=1000))|>   # generate a grid of p
 
 figure4 <- ggplot(data= beta0.5_0.5) +                                              # specify data
   geom_line(aes(x=x, y=beta.pdf, color="Beta (0.5, 0.5)")) +                 # plot beta dist
-  geom_line(aes(x=x, y=norm.pdf, color= "Normal (0.5, 0.125)")) +  # plot guassian dist
+  geom_line(aes(x=x, y=norm.pdf, color= "Normal (0.5, 0.125)")) +  # plot gaussian dist
   geom_hline(yintercept = 0)+                                            # plot x axis
   theme_bw()+                                                          # change theme
   xlab("x")+                                                           # label x axis
@@ -178,12 +180,12 @@ p1 <- ggplot(data.frame(caseOneSample), aes(x = caseOneSample)) +
                  bins = 15, 
                  fill = "lightblue",
                  color = "black") +
-  geom_density(aes(color = "Estimated Density"),
-               linewidth = 0.65) + 
+  stat_density(aes(color = "Estimated Density"),
+               linewidth = 0.65,
+               geom = "line") + 
   stat_function(fun = dbeta,
                 args = list(shape1 = alpha, shape2 = beta),
                 aes(color = "Beta (2,5)"),
-                #color = "grey", 
                 linewidth = 1) + 
   scale_x_continuous(limits=c(0, 1)) +
   labs(x = "Value",
@@ -218,7 +220,7 @@ p2 <- ggplot(data.frame(caseTwoSample), aes(x = caseTwoSample)) +
                  bins = 15, 
                  fill = "lightblue",
                  color = "black") +
-  geom_density(aes(color = "Estimated Density"),
+  stat_density(aes(color = "Estimated Density"), geom = "line",
                linewidth = 0.65) + 
   stat_function(fun = dbeta,
                 args = list(shape1 = alpha, shape2 = beta),
@@ -256,12 +258,11 @@ p3 <- ggplot(data.frame(caseThreeSample), aes(x = caseThreeSample)) +
                  bins = 15, 
                  fill = "lightblue",
                  color = "black") +
-  geom_density(aes(color = "Estimated Density"),
+  stat_density(aes(color = "Estimated Density"), geom = "line",
                linewidth = 0.65) + 
   stat_function(fun = dbeta,
                 args = list(shape1 = alpha, shape2 = beta),
                 aes(color = "Beta (5,2)"),
-                #color = "grey", 
                 linewidth = 1) + 
   scale_x_continuous(limits=c(0, 1)) +
   labs(x = "Value",
@@ -295,7 +296,7 @@ p4 <- ggplot(data.frame(caseFourSample), aes(x = caseFourSample)) +
                  bins = 15, 
                  fill = "lightblue",
                  color = "black") +
-  geom_density(aes(color = "Estimated Density"),
+  stat_density(aes(color = "Estimated Density"), geom = "line",
                linewidth = 0.65) + 
   stat_function(fun = dbeta,
                 args = list(shape1 = alpha, shape2 = beta),
@@ -309,3 +310,72 @@ p4 <- ggplot(data.frame(caseFourSample), aes(x = caseFourSample)) +
   scale_color_manual(values = c("Estimated Density" = "black", 
                                 "Beta (0.5,0.5)" = "grey")) +
   theme_minimal()
+
+
+
+##########################
+# task four
+cum.numerical <- data.frame(
+  mean = cummean(caseOneSample),
+  variance = cumvar(caseOneSample),
+  skewness = cumskew(caseOneSample),
+  kurtosis = cumkurt(caseOneSample) - 3 # excess cumulative kurtosis
+)
+
+# mean plot
+mean_p <- ggplot(cum.numerical, aes(x = 1:nrow(cum.numerical), y = mean)) +
+  geom_line() +
+  geom_hline(yintercept = main.df[[1, "mean"]]) + # get true value from our tibble which contains it
+  labs(x = "x",
+        title = "Cumulative Mean")
+
+# variance plot
+variance_p <- ggplot(cum.numerical, aes(x = 1:nrow(cum.numerical), y = variance)) +
+  geom_line() +
+  geom_hline(yintercept = main.df[[1, "variance"]]) +
+  labs(x = "x",
+        title = "Cumulative Variance")
+
+# skewness plot
+skewness_p <- ggplot(cum.numerical, aes(x = 1:nrow(cum.numerical), y = skewness)) +
+  geom_line() +
+  geom_hline(yintercept = main.df[[1, "skewness"]]) +
+  labs(x = "x",
+        title = "Cumulative Skewness")
+
+# kurtosis plot
+kurtosis_p <- ggplot(cum.numerical, aes(x = 1:nrow(cum.numerical), y = kurtosis)) +
+  geom_line() +
+  geom_hline(yintercept = main.df[[1, "kurtosis"]]) +
+  labs(x = "x",
+        title = "Cumulative Kurtosis")
+
+# 2x2 grid
+combined_plot <- (mean_p + variance_p) / (skewness_p + kurtosis_p)
+
+# writing a for() loop to simulate new data
+
+for (i in 2:50){
+  
+  set.seed(7272 + i)
+  new.data <- rbeta(n = 500, shape1 = 2, shape2 = 5)
+  
+  cum.data <- data.frame(
+    mean = cummean(new.data),
+    variance = cumvar(new.data),
+    skewness = cumskew(new.data),
+    kurtosis = cumkurt(new.data) - 3 # excess cumulative kurtosis
+  )
+  
+  mean_p = mean_p +
+    geom_line(data = cum.data, aes(x = 1:nrow(cum.data), y = mean), color = i)
+  variance_p = variance_p +
+    geom_line(data = cum.data, aes(x = 1:nrow(cum.data), y = variance), color = i)
+  skewness_p = skewness_p +
+    geom_line(data = cum.data, aes(x = 1:nrow(cum.data), y = skewness), color = i)
+  kurtosis_p = kurtosis_p +
+    geom_line(data = cum.data, aes(x = 1:nrow(cum.data), y = kurtosis), color = i)
+
+}
+
+combined_plot2 <- (mean_p + variance_p) / (skewness_p + kurtosis_p)
