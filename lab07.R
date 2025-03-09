@@ -1,0 +1,143 @@
+############################
+# LAB 07
+############################
+# load libraries
+library(tidyverse)
+############################
+# task one: describe population distribution
+
+# functions to calculate mean, variance, skewness and kurtosis
+compute <- function(alpha, beta){
+  mean <- alpha / (alpha + beta)
+  variance <- (alpha*beta)/(((alpha+beta)^2)*(alpha+beta+1))
+  skewness <- (2*(beta-alpha)*sqrt(alpha+beta+1))/((alpha+beta+2)*sqrt(alpha*beta))
+  kurtosis <- (6*((alpha-beta)^2*(alpha+beta+1)-alpha*beta*(alpha+beta+2)))/(alpha*beta*(alpha+beta+2)*(alpha+beta+3))
+  
+  rowtoAdd <- c(alpha, beta, mean, variance, skewness, kurtosis)
+  names(rowtoAdd) <- c("alpha", "beta", "mean", "variance", "skewness", "kurtosis")
+  return(rowtoAdd)
+}
+
+# distributions
+main.df <- tibble(
+  alpha = numeric(), beta = numeric(), mean = numeric(),
+  variance = numeric(), skewness = numeric(), kurtosis = numeric()
+)
+# Beta (alpha = 2, beta = 5)
+caseOne <- compute(2,5)
+main.df <- bind_rows(main.df, caseOne)
+# Beta (alpha = 5, beta = 5)
+caseTwo <- compute(5, 5)
+main.df <- bind_rows(main.df, caseTwo)
+# Beta (alpha = 5, beta = 2)
+caseThree <- compute(5, 2)
+main.df <- bind_rows(main.df, caseThree)
+# Beta (alpha = 0.5, beta = 0.5)
+caseFour <- compute(0.5, 0.5)
+main.df <- bind_rows(main.df, caseFour)
+
+#########
+# plots
+# beta(2,5)
+alpha <- 2
+beta <- 5
+beta2_5 <- tibble(x = seq(0, 1, length.out=1000))|>   # generate a grid of points
+  mutate(beta.pdf = dbeta(x, alpha, beta),                      # compute the beta PDF
+         norm.pdf = dnorm(x,                                    # Gaussian distribution with
+                          mean = alpha/(alpha+beta),            # same mean and variance
+                          sd = sqrt((alpha*beta)/((alpha+beta)^2*(alpha+beta+1)))))
+
+figure1 <- ggplot(data= beta2_5) +                                              # specify data
+  geom_line(aes(x=x, y=beta.pdf, color="Beta (2, 5)")) +                 # plot beta dist
+  geom_line(aes(x=x, y=norm.pdf, color= "Normal (0.285, 0.0255)")) +  # plot guassian dist
+geom_hline(yintercept = 0)+                                            # plot x axis
+  theme_bw()+                                                          # change theme
+  xlab("x")+                                                           # label x axis
+  ylab("Density")+                                                     # label y axis
+  scale_color_manual("", values = c("black", "grey"))+                 # change colors
+  theme(legend.position = "bottom") 
+
+
+# beta(5,5)
+alpha <- 5
+beta <- 5
+beta5_5 <- tibble(x = seq(0, 1, length.out=1000))|>   # generate a grid of points
+  mutate(beta.pdf = dbeta(x, alpha, beta),                      # compute the beta PDF
+         norm.pdf = dnorm(x,                                    # Gaussian distribution with
+                          mean = alpha/(alpha+beta),            # same mean and variance
+                          sd = sqrt((alpha*beta)/((alpha+beta)^2*(alpha+beta+1)))))
+
+figure2 <- ggplot(data= beta5_5) +                                              # specify data
+  geom_line(aes(x=x, y=beta.pdf, color="Beta (5, 5)")) +                 # plot beta dist
+  geom_line(aes(x=x, y=norm.pdf, color= "Normal (0.5, 0.022)")) +  # plot guassian dist
+  geom_hline(yintercept = 0)+                                            # plot x axis
+  theme_bw()+                                                          # change theme
+  xlab("x")+                                                           # label x axis
+  ylab("Density")+                                                     # label y axis
+  scale_color_manual("", values = c("black", "grey"))+                 # change colors
+  theme(legend.position = "bottom") 
+
+
+# beta(5, 2)
+alpha <- 5
+beta <- 2
+beta5_2 <- tibble(x = seq(0, 1, length.out=1000))|>   # generate a grid of points
+  mutate(beta.pdf = dbeta(x, alpha, beta),                      # compute the beta PDF
+         norm.pdf = dnorm(x,                                    # Gaussian distribution with
+                          mean = alpha/(alpha+beta),            # same mean and variance
+                          sd = sqrt((alpha*beta)/((alpha+beta)^2*(alpha+beta+1)))))
+
+figure3 <- ggplot(data= beta5_2) +                                              # specify data
+  geom_line(aes(x=x, y=beta.pdf, color="Beta (5, 2)")) +                 # plot beta dist
+  geom_line(aes(x=x, y=norm.pdf, color= "Normal (0.714, 0.0255)")) +  # plot guassian dist
+  geom_hline(yintercept = 0)+                                            # plot x axis
+  theme_bw()+                                                          # change theme
+  xlab("x")+                                                           # label x axis
+  ylab("Density")+                                                     # label y axis
+  scale_color_manual("", values = c("black", "grey"))+                 # change colors
+  theme(legend.position = "bottom") 
+
+
+# beta (0.5, 0.5)
+alpha <- 0.5
+beta <- 0.5
+beta0.5_0.5 <- tibble(x = seq(0, 1, length.out=1000))|>   # generate a grid of points
+  mutate(beta.pdf = dbeta(x, alpha, beta),                      # compute the beta PDF
+         norm.pdf = dnorm(x,                                    # Gaussian distribution with
+                          mean = alpha/(alpha+beta),            # same mean and variance
+                          sd = sqrt((alpha*beta)/((alpha+beta)^2*(alpha+beta+1)))))
+
+figure4 <- ggplot(data= beta0.5_0.5) +                                              # specify data
+  geom_line(aes(x=x, y=beta.pdf, color="Beta (0.5, 0.5)")) +                 # plot beta dist
+  geom_line(aes(x=x, y=norm.pdf, color= "Normal (0.5, 0.125)")) +  # plot guassian dist
+  geom_hline(yintercept = 0)+                                            # plot x axis
+  theme_bw()+                                                          # change theme
+  xlab("x")+                                                           # label x axis
+  ylab("Density")+                                                     # label y axis
+  scale_color_manual("", values = c("black", "grey"))+                 # change colors
+  theme(legend.position = "bottom") 
+
+
+############################
+# task two: compute moments
+beta.summary <- function(alpha, beta, k, centered){
+  if(centered){
+    integrand <- function(x) (x)*dbeta(x,alpha,beta)
+    mu_x = integrate(integrand, lower = 0, upper = 1)$value
+    
+    integrand <-  function(x) (x - mu_x)^k * dbeta(x,alpha,beta)
+    kth.uncentered = integrate(integrand, lower = 0, upper = 1)
+    
+  }
+  else{
+    integrand <- function(x) (x^k)*dbeta(x,alpha,beta)
+    kth.centered = integrate(integrand, lower = 0, upper = 1)
+  }
+}
+
+# beta(2,5) population-level characteristics using beta.summary
+mean <- beta.summary(2,5,1,F)$value
+variance <- beta.summary(2,5,2,T)$value 
+skewness <- (beta.summary(2,5,3,T)$value) / ((beta.summary(2,5,2,T)$value)^(3/2))
+kurtosis <- (beta.summary(2,5,4,T)$value) / ((beta.summary(2,5,2,T)$value)^(2)) - 3
+
