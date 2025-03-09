@@ -379,3 +379,62 @@ for (i in 2:50){
 }
 
 combined_plot2 <- (mean_p + variance_p) / (skewness_p + kurtosis_p)
+
+
+##############################
+# task five
+stats.of.interest <- tibble("mean"= numeric(),
+  "variance" = numeric(), "skewness" = numeric(), "kurtosis" = numeric()
+)
+
+
+# Loop to generate the data and compute statistics
+for (i in 1:1000) {
+  set.seed(7272 + i)  # set seed
+  
+  # beta(2,5) sample
+  data <- rbeta(n = 500, shape1 = 2, shape2 = 5)
+  
+  stats.of.interest <- bind_rows(stats.of.interest, c("mean" = mean(data),
+                                                  "variance" = var(data),
+                                                  "skewness" = skewness(data),
+                                                  "kurtosis" = kurtosis(data) - 3))
+}
+
+
+# plot histogram for each statistic
+# mean plot
+ggplot(stats.of.interest) +
+  geom_histogram(aes(x = mean, y = after_stat(density)),
+                 bins = 25, fill = "lightblue", 
+                 color = "black") +
+  geom_density(aes(x = mean), color = "grey", size = 1) +
+  labs(title = "Distibution of mean") +
+  theme_minimal()
+
+# variance plot
+ggplot(stats.of.interest) +
+  geom_histogram(aes(x = variance, y = after_stat(density)), 
+                 bins = 25, fill = "lightblue", 
+                 color = "black") +
+  geom_density(aes(x = variance), color = "grey", size = 1) +
+  labs(title = "Distibution of variance") +
+  theme_minimal()
+
+# skewness plot
+ggplot(stats.of.interest) +
+  geom_histogram(aes(x = skewness, y = after_stat(density)), 
+                 bins = 25, fill = "lightblue", 
+                 color = "black") +
+  geom_density(aes(x = skewness), color = "grey", size = 1) +
+  labs(title = "Distibution of skewness") +
+  theme_minimal()
+
+# kurtosis plot
+ggplot(stats.of.interest) +
+  geom_histogram(aes(x = kurtosis, y = after_stat(density)), 
+                 bins = 25, fill = "lightblue", 
+                 color = "black") +
+  geom_density(aes(x = kurtosis), color = "grey", size = 1) +
+  labs(title = "Distibution of kurtosis") +
+  theme_minimal()
