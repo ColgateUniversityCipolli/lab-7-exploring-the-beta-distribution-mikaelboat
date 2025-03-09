@@ -3,6 +3,7 @@
 ############################
 # load libraries
 library(tidyverse)
+library(e1071)
 ############################
 # task one: describe population distribution
 
@@ -135,9 +136,176 @@ beta.summary <- function(alpha, beta, k, centered){
   }
 }
 
-# beta(2,5) population-level characteristics using beta.summary
+# computing beta(2,5) population-level characteristics using beta.summary()
 mean <- beta.summary(2,5,1,F)$value
 variance <- beta.summary(2,5,2,T)$value 
 skewness <- (beta.summary(2,5,3,T)$value) / ((beta.summary(2,5,2,T)$value)^(3/2))
 kurtosis <- (beta.summary(2,5,4,T)$value) / ((beta.summary(2,5,2,T)$value)^(2)) - 3
 
+
+############################
+# task three
+numeric.summary <- tibble(
+  alpha = numeric(), beta = numeric(), mean = numeric(),
+  variance = numeric(), skewness = numeric(), kurtosis = numeric()
+)
+
+set.seed(7272) # Set seed so we all get the same results.
+sample.size <- 500 # Specify sample details
+
+
+# beta(2,5)
+alpha <- 2
+beta <- 5
+caseOneSample <- rbeta(n = sample.size,  # sample size
+                     shape1 = alpha,   # alpha parameter
+                     shape2 = beta)    # beta parameter
+
+caseOne.summary <- data.frame(caseOneSample) |>
+  summarize(alpha = alpha,
+            beta = beta,
+            mean = mean(caseOneSample),
+            variance = var(caseOneSample),
+            skewness = skewness(caseOneSample),
+            kurtosis = kurtosis(caseOneSample))
+
+numeric.summary <- bind_rows(numeric.summary, caseOne.summary)
+
+
+
+p1 <- ggplot(data.frame(caseOneSample), aes(x = caseOneSample)) +
+  geom_histogram(aes(y = after_stat(density)),
+                 bins = 15, 
+                 fill = "lightblue",
+                 color = "black") +
+  geom_density(aes(color = "Estimated Density"),
+               linewidth = 0.65) + 
+  stat_function(fun = dbeta,
+                args = list(shape1 = alpha, shape2 = beta),
+                aes(color = "Beta (2,5)"),
+                #color = "grey", 
+                linewidth = 1) + 
+  scale_x_continuous(limits=c(0, 1)) +
+  labs(x = "Value",
+       y = "Frequency",
+       color = "Legend") +
+  scale_color_manual(values = c("Estimated Density" = "black", 
+                               "Beta (2,5)" = "grey")) +
+  theme_minimal()
+
+
+# beta(5,5)
+alpha <- 5
+beta <- 5
+caseTwoSample <- rbeta(n = sample.size,  # sample size
+                       shape1 = alpha,   # alpha parameter
+                       shape2 = beta)    # beta parameter
+
+
+caseTwo.summary <- data.frame(caseTwoSample) |>
+  summarize(alpha = alpha,
+            beta = beta,
+            mean = mean(caseTwoSample),
+            variance = var(caseTwoSample),
+            skewness = skewness(caseTwoSample),
+            kurtosis = kurtosis(caseTwoSample))
+
+numeric.summary <- bind_rows(numeric.summary, caseTwo.summary)
+
+
+p2 <- ggplot(data.frame(caseTwoSample), aes(x = caseTwoSample)) +
+  geom_histogram(aes(y = after_stat(density)),
+                 bins = 15, 
+                 fill = "lightblue",
+                 color = "black") +
+  geom_density(aes(color = "Estimated Density"),
+               linewidth = 0.65) + 
+  stat_function(fun = dbeta,
+                args = list(shape1 = alpha, shape2 = beta),
+                aes(color = "Beta (5,5)"),
+                linewidth = 1) + 
+  scale_x_continuous(limits=c(0, 1)) +
+  labs(x = "Value",
+       y = "Frequency",
+       color = "Legend") +
+  scale_color_manual(values = c("Estimated Density" = "black", 
+                                "Beta (5,5)" = "grey")) +
+  theme_minimal()
+
+
+# beta(5, 2)
+alpha <- 5
+beta <- 2
+caseThreeSample <- rbeta(n = sample.size,  # sample size
+                       shape1 = alpha,   # alpha parameter
+                       shape2 = beta)    # beta parameter
+
+caseThree.summary <- data.frame(caseThreeSample) |>
+  summarize(alpha = alpha,
+            beta = beta,
+            mean = mean(caseThreeSample),
+            variance = var(caseThreeSample),
+            skewness = skewness(caseThreeSample),
+            kurtosis = kurtosis(caseThreeSample))
+
+numeric.summary <- bind_rows(numeric.summary, caseThree.summary)
+
+
+p3 <- ggplot(data.frame(caseThreeSample), aes(x = caseThreeSample)) +
+  geom_histogram(aes(y = after_stat(density)),
+                 bins = 15, 
+                 fill = "lightblue",
+                 color = "black") +
+  geom_density(aes(color = "Estimated Density"),
+               linewidth = 0.65) + 
+  stat_function(fun = dbeta,
+                args = list(shape1 = alpha, shape2 = beta),
+                aes(color = "Beta (5,2)"),
+                #color = "grey", 
+                linewidth = 1) + 
+  scale_x_continuous(limits=c(0, 1)) +
+  labs(x = "Value",
+       y = "Frequency",
+       color = "Legend") +
+  scale_color_manual(values = c("Estimated Density" = "black", 
+                                "Beta (5,2)" = "grey")) +
+  theme_minimal()
+
+
+# beta(0.5,0.5)
+alpha <- 0.5
+beta <- 0.5
+caseFourSample <- rbeta(n = sample.size,  # sample size
+                       shape1 = alpha,   # alpha parameter
+                       shape2 = beta)    # beta parameter
+
+caseFour.summary <- data.frame(caseFourSample) |>
+  summarize(alpha = alpha,
+            beta = beta,
+            mean = mean(caseFourSample),
+            variance = var(caseFourSample),
+            skewness = skewness(caseFourSample),
+            kurtosis = kurtosis(caseFourSample))
+
+numeric.summary <- bind_rows(numeric.summary, caseFour.summary)
+
+
+p4 <- ggplot(data.frame(caseFourSample), aes(x = caseFourSample)) +
+  geom_histogram(aes(y = after_stat(density)),
+                 bins = 15, 
+                 fill = "lightblue",
+                 color = "black") +
+  geom_density(aes(color = "Estimated Density"),
+               linewidth = 0.65) + 
+  stat_function(fun = dbeta,
+                args = list(shape1 = alpha, shape2 = beta),
+                aes(color = "Beta (0.5,0.5)"),
+                #color = "grey", 
+                linewidth = 1) + 
+  scale_x_continuous(limits=c(0, 1)) +
+  labs(x = "Value",
+       y = "Frequency",
+       color = "Legend") +
+  scale_color_manual(values = c("Estimated Density" = "black", 
+                                "Beta (0.5,0.5)" = "grey")) +
+  theme_minimal()
